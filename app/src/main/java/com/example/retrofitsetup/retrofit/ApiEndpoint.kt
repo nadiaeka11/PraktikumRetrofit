@@ -1,11 +1,11 @@
-package com.lazday.kotlinandroidretrofit.retrofit
+package com.example.retrofitsetup.retrofit
 
 import com.example.retrofitsetup.MainModel
 import retrofit2.Call
-import retrofit2.http.*
+import retrofit2.http.GET
 
-interface ApiEndpoint {
+interface   ApiEndpoint {
 
     @GET("data.php")
-    fun data(): Call<MainModel>
+    fun getData(): Call<MainModel>
 }

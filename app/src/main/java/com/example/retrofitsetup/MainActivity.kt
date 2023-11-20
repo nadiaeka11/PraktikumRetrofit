@@ -6,8 +6,9 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.lazday.kotlinandroidretrofit.retrofit.ApiService
-import kotlinx.android.synthetic.main.activity_main.*
+import com.example.retrofitsetup.retrofit.ApiService
+import com.example.retrofitsetup.MainModel
+import com.example.retrofitsetup.databinding.ActivityMainBinding
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -15,12 +16,17 @@ import retrofit2.Response
 class MainActivity : AppCompatActivity() {
     private val TAG: String = "MainActivity"
 
-    private lateinit var movieAdapter: MovieAdapter
+    lateinit var movieAdapter: MovieAdapter
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        supportActionBar!!.title = "Avengers"
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        supportActionBar?.let {
+            it.title = "Avengers"
+        }
         setupRecyclerView()
         getDataFromApi()
     }
@@ -35,27 +41,25 @@ class MainActivity : AppCompatActivity() {
                 )
             }
         })
-        recyclerView.apply {
+
+        binding.recyclerView.apply {
             layoutManager = LinearLayoutManager(context)
             adapter = movieAdapter
         }
     }
 
     private fun getDataFromApi(){
-        showLoading(true)
-        ApiService.endpoint.data()
-            .enqueue(object : Callback<MainModel> {
+        binding.progressBar.visibility = View.VISIBLE
+        ApiService.endpoint.getData().enqueue(object : Callback<MainModel> {
                 override fun onFailure(call: Call<MainModel>, t: Throwable) {
-                    printLog( t.toString() )
-                    showLoading(false)
+                    binding.progressBar.visibility = View.GONE
+                    printLog( "onFailure: $t" )
                 }
-                override fun onResponse(
-                    call: Call<MainModel>,
-                    response: Response<MainModel>
-                ) {
-                    showLoading(false)
-                    if (response.isSuccessful) {
-                        showResult( response.body()!! )
+
+                override fun onResponse(call: Call<MainModel>, response: Response<MainModel>) {
+                    binding.progressBar.visibility = View.GONE
+                    if (response.isSuccessful && response.body() != null) {
+                        showData( response.body()!! )
                     }
                 }
             })
@@ -65,15 +69,8 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, message)
     }
 
-    private fun showLoading(loading: Boolean) {
-        when(loading) {
-            true -> progressBar.visibility = View.VISIBLE
-            false -> progressBar.visibility = View.GONE
-        }
-    }
-
-    private fun showResult(results: MainModel) {
-        for (result in results.result) printLog( "title: ${result.title}" )
-        movieAdapter.setData( results.result )
+    private fun showData(data: MainModel) {
+        val results = data.result
+        movieAdapter.setData( results )
     }
 }

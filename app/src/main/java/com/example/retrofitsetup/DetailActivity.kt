@@ -3,20 +3,25 @@ package com.example.retrofitsetup
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.bumptech.glide.Glide
-import kotlinx.android.synthetic.main.activity_detail.*
+import com.example.retrofitsetup.databinding.ActivityDetailBinding
 
 class DetailActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityDetailBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_detail)
+        binding = ActivityDetailBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         val intentTitle = intent.getStringExtra("intent_title")
         val intentImage = intent.getStringExtra("intent_image")
-        supportActionBar!!.title = intentTitle
+        supportActionBar?.title = intentTitle
+
         Glide.with(this)
-            .load(intentImage )
+            .load(intentImage)
             .placeholder(R.drawable.img_placeholder)
             .error(R.drawable.img_placeholder)
-            .into(imageView)
+            .into(binding.imageView)
     }
 }
